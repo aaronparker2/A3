@@ -1,0 +1,79 @@
+﻿@{
+    var ComicName = "";
+    DateTime ReleaseDate = DateTime.UtcNow;//Universal Time on Server
+    var CharacterName = "";
+    var Height = "";
+    var Weight = "";
+    var Description = "";
+
+    if (IsPost)
+    {
+        ComicName = Request["ComicName"];
+        CharacterName = Request["CharacterName"];
+        Height = Request["Height"];
+        Weight = Request.Unvalidated["Weight"];
+        Description = Request.Unvalidated["Description"];
+
+
+        Validation.RequireFields("ComicName", "CharacterName", "Height", "Weight", "Description");
+
+        var SQLInsert = "INSERT INTO Games (ComicName, ReleaseDate, CharacterName, Height, Weight, Description) VALUES (@0, @1, @2, @3, @4, @5)";
+
+        if (Validation.IsValid())
+        {
+            try
+            {
+                var db = Database.Open("MarvelHeroes");//in Web.config
+
+                db.Execute(SQLInsert, ComicName, ReleaseDate, CharacterName, Height, Weight, Description);
+                Response.Write("Data Saved!");
+            }
+            catch (Exception ex)
+            {
+                Response.Write(ex.Message);
+            }
+        }
+
+    }
+}
+
+
+
+
+
+
+<form method="post">
+    <fieldset>
+        <legend>Insert Data</legend>
+        @Html.ValidationSummary(true)
+        <div>
+            ComicName, ReleaseDate, CharacterName, Height, Weight, Description
+            <label>Comic Name</label>
+            <input type="text" value="@ComicName" name="ComicName" />
+            @Html.ValidationMessage("ComicName")
+        </div>
+
+        <div>
+            <label>Character Name</label>
+            <input type="text" value="@CharacterName" name="CharacterName" />
+            @Html.ValidationMessage("CharacterName")
+        </div>
+        <div>
+            <label>Height</label>
+            <input type="text" value="@Height" name="Height" />
+            @Html.ValidationMessage("Height")
+        </div>
+        <div>
+            <label>Weight</label>
+            <input type="text" value="@Weight" name="Weight" />
+            @Html.ValidationMessage("Weight")
+        </div>
+
+        <div>
+            <label>Description</label>
+            <textarea class="ckeditor" name="Description">@Description</textarea>
+            @Html.ValidationMessage("Description")
+        </div> <input type="submit" />
+    </fieldset>
+</form>
+<script src="/ckeditor/ckeditor.js"></script>
